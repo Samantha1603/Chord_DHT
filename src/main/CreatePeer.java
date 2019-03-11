@@ -25,8 +25,8 @@ public class CreatePeer {
         if(args.length>0)
             ipAddr=args[0];
         else
-            ipAddr="localhost";
-
+            ipAddr="192.168.56.1";
+        System.out.println(ipAddr);
         createPeer.startPeerSocket();
         PeerDetails newPeer = new PeerDetails(id);
         newPeer.start();
@@ -43,7 +43,7 @@ public class CreatePeer {
 
             String message = new String(Arrays.copyOfRange(recvByte, 0, Constant.messageSize)).trim();
             String messageArray[] = message.split(":");
-
+            System.out.println("message from server:"+message);
             if(Integer.parseInt(messageArray[0])==Constant.n-1)
                 System.out.println("Max peers already present on the ring");
             else {
