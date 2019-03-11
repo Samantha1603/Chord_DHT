@@ -37,6 +37,7 @@ public class CreatePeer {
         try {
             System.out.println("Create Peer run listening");
             Socket socket = new Socket(ipAddr, Constant.SERVER_PORT);
+            System.out.println("Reading from socket");
             DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
 
             dataInputStream.read(recvByte, 0, recvByte.length);
