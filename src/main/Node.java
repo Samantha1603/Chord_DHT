@@ -41,7 +41,8 @@ public class Node
 
                 case 1: //Finger table details
                     System.out.println("Finger table details");
-                    break;
+
+                     break;
                 case 2: //Leave Chord Zone
                     System.out.println("Leave Chord Zone");
                     break;

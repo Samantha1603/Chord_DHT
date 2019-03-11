@@ -4,18 +4,23 @@ import Util.Constant;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class CreateServer extends Thread
 {
 
     private static ServerSocket serverSocket;
+    static SortedSet<Integer> peerList=new TreeSet<>();
     private Socket socket;
     public static void main(String args[]){
         CreateServer s=new CreateServer();
         try
         {
             serverSocket=new ServerSocket(Constant.SERVER_PORT);
-            s.run();
+            s.start();
+//            CentralPeerLookUp1 lookUp = new CentralPeerLookUp1("localhost");
+//            lookUp.start();
         }
         catch (Exception e)
         {
@@ -28,7 +33,6 @@ public class CreateServer extends Thread
 
         try {
 
-            System.out.println("Create Server running");
             while( true ) {
                 socket = serverSocket.accept();
                 new ServerHandler(socket).start();
@@ -36,9 +40,37 @@ public class CreateServer extends Thread
 
         }
         catch( Exception e ) {
-
+            System.out.println("Exception in Create Server");
         }
     }
 
+    public void add(int val)
+    {
+        peerList.add(val);
+    }
 
+    public SortedSet<Integer> getList()
+    {
+        return peerList;
+    }
+
+    public void remove(int id)
+    {
+        peerList.remove(id);
+    }
+
+    public int listSize()
+    {
+        return peerList.size();
+    }
+
+    public void setList(SortedSet<Integer> list)
+    {
+        peerList=list;
+    }
+
+    public boolean contains(int val)
+    {
+        return peerList.contains(val);
+    }
 }

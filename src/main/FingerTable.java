@@ -1,48 +1,32 @@
 package main;
 
+import Util.Constant;
+import Util.Util;
+
 public class FingerTable
 {
-    private int start;
-    private int intervalBegin;
-    private int intervalEnd;
-    private PeerNode successor;
+    private int id;
+    private int nodeVal;
 
-    //Setters
-    public void setStart(int newStart){
-        this.start = newStart;
+    public FingerTable(int id,int val) {
+
+        this.id=id;
+        this.nodeVal=val;
     }
 
-    public void setInterval(int begin, int end){
-        this.intervalBegin = begin;
-        this.intervalEnd = end;
+    public int getId() {
+        return id;
     }
 
-    public void setSuccessor(PeerNode newSuccessor){
-        this.successor = newSuccessor;
+    public int getNodeVal() {
+        return nodeVal;
     }
 
-    //Getters
-    public int getStart(){
-        return this.start;
-    }
-
-    public int getIntervalBegin(){
-        return this.intervalBegin;
-    }
-
-    public int getIntervalEnd(){
-        return this.intervalEnd;
-    }
-
-    public PeerNode getSuccessor(){
-        return this.successor;
-    }
-
-    public FingerTable(){
-    }
-
-    public FingerTable(int startID, PeerNode succ) {
-        start = startID;
-        successor = succ;
+    @Override
+    public String toString() {
+        return "FingerTable{" +
+                "id=" + id +
+                ", nodeVal=" + nodeVal +
+                '}';
     }
 }

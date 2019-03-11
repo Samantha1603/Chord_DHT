@@ -25,6 +25,17 @@ public class Util
             return (int) (id%Math.pow(2, Constant.size));
         }
     }
+    public static int getPosition(int random,int id)
+    {
+        int x = (int) Math.pow(2, id);
+        x+= random;
+
+
+        if( x > Constant.n - 1 ) {
+            x = x % Constant.n;
+        }
+        return x;
+    }
 
     public static byte[] makeMessage(String message) {
 

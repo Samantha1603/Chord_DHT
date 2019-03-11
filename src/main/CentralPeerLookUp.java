@@ -3,19 +3,20 @@ package main;
 import Util.Constant;
 import Util.Util;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.net.ServerSocket;
+import java.io.EOFException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Arrays;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-public class PeerLookUp extends Thread
+public class CentralPeerLookUp extends Thread
 {
-    private static ServerSocket lookUpServerSocket;
-    private byte recvByte[] = new byte[Constant.messageSize];
     private String serverIp;
-    PeerLookUp(String ip)
+    private byte recvData[] = new byte[Constant.messageSize];
+    SortedSet<Integer> list=new TreeSet<>();
+    CentralPeerLookUp(String ip)
     {
         this.serverIp=ip;
     }
@@ -23,20 +24,54 @@ public class PeerLookUp extends Thread
     {
         try
         {
-            Socket lookUpSocket = new Socket(this.serverIp, Constant.SERVER_PORT);
-            DataInputStream dataInputStream = new DataInputStream(lookUpSocket.getInputStream());
+            CreateServer s=new CreateServer();
+            System.out.println("Central Peer lookup running");
+            Socket lookUpSocket = new Socket(this.serverIp, Constant.LOOKUP_PORT);
+            list=s.getList();
+            sendData(lookUpSocket);
 
-            dataInputStream.read(recvByte, 0, recvByte.length);
+            System.out.println(list.size());
+            DataOutputStream dataOutputStream = new DataOutputStream(lookUpSocket.getOutputStream());
 
-            String message = new String(Arrays.copyOfRange(recvByte, 0, Constant.messageSize)).trim();
-            String messageArray[] = message.split("::");
-            
-            lookUpSocket.close();
+            byte[] sendByte = Util.makeMessage("waiting for update");
+            dataOutputStream.write(sendByte);
+            dataOutputStream.flush();
+            ObjectInputStream objectInput = new ObjectInputStream(lookUpSocket.getInputStream()); //Error Line!
+            try {
+                Object object = objectInput.readObject();
+                list=(SortedSet<Integer>) object;
+                System.out.println(list.size());
+                sendData(lookUpSocket);
+                lookUpSocket.close();
+
+            } catch (ClassNotFoundException e) {
+                System.out.println("The title list has not come from the server");
+                e.printStackTrace();
+            }
+
+
+        }
+        catch (EOFException e)
+        {
 
         }
         catch (Exception e)
         {
             e.printStackTrace();
+        }
+    }
+
+    public void sendData(Socket lookUpSocket)
+    {
+        try {
+            System.out.println("Sending data from central look up");
+                ObjectOutputStream objectOutput = new ObjectOutputStream(lookUpSocket.getOutputStream());
+                objectOutput.writeObject(list);
+                objectOutput.flush();
+        }
+        catch (Exception e)
+        {
+
         }
     }
 }
