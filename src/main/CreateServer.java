@@ -2,6 +2,7 @@ package main;
 
 import Util.Constant;
 
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.SortedSet;
@@ -17,6 +18,7 @@ public class CreateServer extends Thread
         CreateServer s=new CreateServer();
         try
         {
+            System.out.println("In create server main");
             serverSocket=new ServerSocket(Constant.SERVER_PORT);
             s.start();
 //            CentralPeerLookUp1 lookUp = new CentralPeerLookUp1("localhost");
@@ -31,9 +33,13 @@ public class CreateServer extends Thread
 
     public void run() {
 
+        System.out.println("In creat server run");
         try {
 
             while( true ) {
+                InetAddress IP=InetAddress.getLocalHost();
+                System.out.println("IP of my system is := "+IP.getHostAddress());
+
                 socket = serverSocket.accept();
                 new ServerHandler(socket).start();
             }
