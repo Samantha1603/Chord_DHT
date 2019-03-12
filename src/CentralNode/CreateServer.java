@@ -50,40 +50,40 @@ public class CreateServer extends Thread
         }
     }
 
-//    public void add(int val)
-//    {
-//        peerList1.add(val);
-//    }
-//
-//    public SortedSet<Integer> getList()
-//    {
-//        return peerList1;
-//    }
-//
-//    public void remove(int id)
-//    {
-//        peerList1.remove(id);
-//    }
-//
-//    public int listSize()
-//    {
-//        return peerList1.size();
-//    }
-//
-//    public void setList(SortedSet<Integer> list)
-//    {
-//        peerList1=list;
-//    }
-//
-//    public boolean contains(int val)
-//    {
-//        return peerList1.contains(val);
-//    }
-//
-//    public void add(int start,int end)
-//    {
-//        peerKeyList.add(new Key(start,end));
-//    }
+    public void add(int val)
+    {
+        peerList1.add(val);
+    }
+
+    public SortedSet<Integer> getList()
+    {
+        return peerList1;
+    }
+
+    public void remove(int id)
+    {
+        peerList1.remove(id);
+    }
+
+    public int listSize()
+    {
+        return peerList1.size();
+    }
+
+    public void setList(SortedSet<Integer> list)
+    {
+        peerList1=list;
+    }
+
+    public boolean contains(int val)
+    {
+        return peerList1.contains(val);
+    }
+
+    public void add(int start,int end)
+    {
+        peerKeyList.add(new Key(start,end));
+    }
 
     public HashSet<Key> getKeyList()
     {

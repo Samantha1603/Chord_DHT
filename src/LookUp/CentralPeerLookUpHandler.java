@@ -16,7 +16,6 @@ public class CentralPeerLookUpHandler extends Thread
     Socket socket;
     CreateServer s=new CreateServer();
     private Random random = new Random();
-    boolean flag=false;
     // constructor
     public CentralPeerLookUpHandler( Socket socket) {
         this.socket = socket;
@@ -25,9 +24,7 @@ public class CentralPeerLookUpHandler extends Thread
     public void run() {
         System.out.println();
         System.out.println("CentralPeerLookUP running");
-        System.out.println(flag);
         try {
-            flag=true;
             ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
             System.out.println("S . get list:"+ s.listSize());
             objectOutput.writeObject(s.getList());
@@ -35,17 +32,17 @@ public class CentralPeerLookUpHandler extends Thread
             //objectOutput.close();
 
 
-                byte[] sendByte = Util.makeMessage("updating....");
+             byte[] sendByte = Util.makeMessage("updating....");
 
-                DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+             DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+             dataInputStream.read(sendByte, 0, Constant.messageSize);
+             String message = new String(Arrays.copyOfRange(sendByte, 0, Constant.messageSize)).trim();
+             System.out.println(s.listSize());
+             s.remove(Integer.parseInt(message));
+             //remove key code here -left to do
+             System.out.println(s.listSize());
 
-                dataInputStream.read(sendByte, 0, Constant.messageSize);
-                String message = new String(Arrays.copyOfRange(sendByte, 0, Constant.messageSize)).trim();
-               System.out.println(s.listSize());
-                s.remove(Integer.parseInt(message));
-                System.out.println(s.listSize());
-
-                socket.close();
+              socket.close();
 
         }
         catch (IOException e) {

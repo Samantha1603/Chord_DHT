@@ -1,6 +1,7 @@
 package LookUp;
 
 import CentralNode.CreateServer;
+import Peer.Key;
 import Peer.PeerNode;
 import Util.Constant;
 
@@ -11,15 +12,17 @@ import java.util.*;
 public class LookUpHandler extends Thread
 {
     Socket socket;
-    SortedSet<Integer> peerList=new TreeSet<>();
+    SortedSet<Integer> peerList1;
     PeerNode nodeDetails;
-    HashMap<Integer,String> listMap=new HashMap<>();
+    HashMap<Integer,String> listMap1;
+    HashSet<Key> peerKeyList;
     int id;
     // constructor
-    public LookUpHandler(Socket socket, SortedSet<Integer> list, HashMap<Integer,String> map) {
+    public LookUpHandler(Socket socket, SortedSet<Integer> list, HashMap<Integer,String> map,HashSet<Key> keyList) {
         this.socket = socket;
-        this.peerList=list;
-        this.listMap=map;
+        this.peerList1=list;
+        this.listMap1=map;
+        this.peerKeyList=keyList;
 
     }
     // thread starts
@@ -39,19 +42,22 @@ public class LookUpHandler extends Thread
              String[] messageArray = message.split(":");
             if(message.contains("Delete"))
             {
-                this.peerList.remove(Integer.parseInt(messageArray[1]));
-                this.listMap.remove(Integer.parseInt(messageArray[1]));
+                this.peerList1.remove(Integer.parseInt(messageArray[1]));
+                this.listMap1.remove(Integer.parseInt(messageArray[1]));
+                //left to do - remove from hashset
+
             }
             else
             {
-                this.peerList.add(Integer.parseInt(messageArray[1]));
-                this.listMap.put(Integer.parseInt(messageArray[1]),messageArray[2]);
+                this.peerList1.add(Integer.parseInt(messageArray[1]));
+                this.listMap1.put(Integer.parseInt(messageArray[1]),messageArray[2]);
+                //left to do - in hashset as well
             }
-            System.out.println("Map size at handler="+this.listMap.size());
+            System.out.println("Map size at handler="+this.listMap1.size());
             ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
-            objectOutput.writeObject(this.peerList);
-            objectOutput.writeObject(this.listMap);
-
+            objectOutput.writeObject(this.peerList1);
+            objectOutput.writeObject(this.listMap1);
+            objectOutput.writeObject(this.peerKeyList);
             objectOutput.flush();
 
 
@@ -67,16 +73,4 @@ public class LookUpHandler extends Thread
         return this.nodeDetails;
     }
 
-//    public void updateListInCentralLookUp()
-//    {
-//        try {
-//            ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
-//            objectOutput.writeObject(this.nodeDetails);
-//            objectOutput.flush();
-//        }
-//        catch (Exception e)
-//        {
-//
-//        }
-//    }
 }

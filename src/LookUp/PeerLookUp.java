@@ -1,5 +1,6 @@
 package LookUp;
 
+import Peer.Key;
 import Util.Constant;
 
 
@@ -7,6 +8,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -15,8 +17,9 @@ public class PeerLookUp extends Thread
 
     private static ServerSocket serverLookUpSocket;
     private Socket socket;
-    SortedSet<Integer> list=new TreeSet<>();
-    HashMap<Integer,String> listMap=new HashMap<>();
+    SortedSet<Integer> list1=new TreeSet<>();
+    HashMap<Integer,String> listMap1=new HashMap<>();
+    HashSet<Key> peerKeyList=new HashSet<Key>();
 
     public static void main(String args[])
     {
@@ -43,7 +46,7 @@ public class PeerLookUp extends Thread
                 System.out.println("IP of my system is := "+IP.getHostAddress());
 
                 socket = serverLookUpSocket.accept();
-                new LookUpHandler(socket,list,listMap).start();
+                new LookUpHandler(socket,list1,listMap1,peerKeyList).start();
             }
 
         }

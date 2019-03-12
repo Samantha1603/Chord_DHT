@@ -1,5 +1,6 @@
 package FileManager;
 
+import Peer.Key;
 import Util.Constant;
 import Util.Util;
 import Peer.PeerNode;
@@ -9,6 +10,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 import java.util.SortedSet;
 import java.util.zip.CRC32;
@@ -23,22 +25,20 @@ public class PeerFileManager
     private byte fileInPackets[][];
     PeerNode nodeDetails;
 
-    HashMap<Integer,String> listMap;
-    SortedSet<Integer> peerList;
-    //HashMap<String, ArrayList<String>> fileMap;
+    HashMap<Integer,String> listMap1;
+    SortedSet<Integer> peerList1;
+    HashSet<Key> peerKeyList=new HashSet<>();
+
     private String filePath;
     private int sendToZone;
-    public void upload(PeerNode node, SortedSet<Integer> list, HashMap<Integer, String> map)
+    public void upload(PeerNode node, SortedSet<Integer> list, HashMap<Integer, String> map, HashSet<Key> keyList)
     {
-        listMap=map;
-        peerList=list;
+        listMap1=map;
+        peerList1=list;
+        peerKeyList=keyList;
         nodeDetails=node;
 
         try {
-//            File file = new File(String.valueOf(nodeId));
-//
-//            if(!file.exists())
-//                file.mkdirs();
             System.out.println("Enter the file name to upload");
             Scanner src=new Scanner(System.in);
             src = new Scanner(System.in);
@@ -67,17 +67,15 @@ public class PeerFileManager
         }
     }
 
-    public void downloadFile(PeerNode node, SortedSet<Integer> list, HashMap<Integer, String> map)
+    public void downloadFile(PeerNode node, SortedSet<Integer> list, HashMap<Integer, String> map,HashSet<Key> keylist)
     {
-        listMap=map;
-        peerList=list;
+        listMap1=map;
+        peerList1=list;
+        peerKeyList=keylist;
         nodeDetails=node;
 
         try {
-//            File file = new File(String.valueOf(nodeId));
-//
-//            if(!file.exists())
-//                file.mkdirs();
+
             System.out.println("Enter the file name to download with its extension");
             Scanner src=new Scanner(System.in);
             src = new Scanner(System.in);
@@ -168,13 +166,13 @@ public class PeerFileManager
 
     public String getIpAddress(int value)
     {
-        String ipAddress=listMap.get(peerList.first());
-        for(Integer i:peerList)
+        String ipAddress=listMap1.get(peerList1.first());
+        for(Integer i:peerList1)
         {
             if(i<value)
                 continue;
             else {
-                ipAddress=listMap.get(i);
+                ipAddress=listMap1.get(i);
                 break;
             }
         }

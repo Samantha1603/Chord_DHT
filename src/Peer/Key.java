@@ -4,7 +4,7 @@ public class Key
 {
     int start;
     int end;
-    Key(int s,int e)
+    public Key(int s,int e)
     {
         start=s;
         end=s;

@@ -1,6 +1,7 @@
 package LookUp;
 
 import CentralNode.CreateServer;
+import Peer.Key;
 import Util.Constant;
 import Util.Util;
 
@@ -9,6 +10,7 @@ import java.io.EOFException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.HashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -16,7 +18,9 @@ public class CentralPeerLookUp extends Thread
 {
     private String serverIp;
     private byte recvData[] = new byte[Constant.messageSize];
-    SortedSet<Integer> list=new TreeSet<>();
+    SortedSet<Integer> list1=new TreeSet<>();
+    HashSet<Key> peerKeyList=new HashSet<Key>();
+
     CentralPeerLookUp(String ip)
     {
         this.serverIp=ip;
@@ -28,10 +32,10 @@ public class CentralPeerLookUp extends Thread
             CreateServer s=new CreateServer();
             System.out.println("Central Peer lookup running");
             Socket lookUpSocket = new Socket(this.serverIp, Constant.LOOKUP_PORT);
-            list=s.getList();
+            list1=s.getList();
+            peerKeyList=s.getKeyList();
             sendData(lookUpSocket);
 
-            System.out.println(list.size());
             DataOutputStream dataOutputStream = new DataOutputStream(lookUpSocket.getOutputStream());
 
             byte[] sendByte = Util.makeMessage("waiting for update");
@@ -40,8 +44,11 @@ public class CentralPeerLookUp extends Thread
             ObjectInputStream objectInput = new ObjectInputStream(lookUpSocket.getInputStream()); //Error Line!
             try {
                 Object object = objectInput.readObject();
-                list=(SortedSet<Integer>) object;
-                System.out.println(list.size());
+                list1=(SortedSet<Integer>) object;
+                System.out.println(list1.size());
+
+                peerKeyList=(HashSet<Key>) object;
+                System.out.println(peerKeyList.size());
                 sendData(lookUpSocket);
                 lookUpSocket.close();
 
@@ -67,7 +74,8 @@ public class CentralPeerLookUp extends Thread
         try {
             System.out.println("Sending data from central look up");
                 ObjectOutputStream objectOutput = new ObjectOutputStream(lookUpSocket.getOutputStream());
-                objectOutput.writeObject(list);
+                objectOutput.writeObject(list1);
+                objectOutput.writeObject(peerKeyList);
                 objectOutput.flush();
         }
         catch (Exception e)
