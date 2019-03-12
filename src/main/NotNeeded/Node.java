@@ -1,4 +1,4 @@
-package main;
+package main.NotNeeded;
 
 import java.util.Scanner;
 

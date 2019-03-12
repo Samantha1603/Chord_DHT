@@ -1,23 +1,32 @@
-package main;
+package Peer;
 
 import Util.Constant;
 import Util.Util;
+
+import java.util.HashMap;
 import java.util.SortedSet;
 
 
 public class PeerNode
 {
     private FingerTable[] fingerDetails;
+    private HashMap<Integer,String> peerMap;
     private SortedSet<Integer> list;
     private int id;
-    private int predecessor=-1;
-    private int successor=-1;
-    PeerNode(int randomNo, SortedSet<Integer> peerList)
+    private String ipAddr;
+    private String predecessor;
+    private String successor;
+    private int keyStart;
+    private int keyEnd;
+    PeerNode(int randomNo, SortedSet<Integer> peerList, HashMap<Integer,String> map, String ip)
     {
         fingerDetails = new FingerTable[Constant.m];
         id = randomNo;
         list=peerList;
-        System.out.println("list="+list.size());
+        ipAddr=ip;
+        peerMap=map;
+        predecessor=ip;
+        successor=ip;
         if(randomNo==-1)
         {
 
@@ -39,8 +48,7 @@ public class PeerNode
             {
                 node=id;
             }
-            fingerDetails[i]=new FingerTable(i,node);
-            // fingerDetails[i].toString();
+            fingerDetails[i]=new FingerTable(i,node,peerMap.get(node));
         }
     }
     public void getPredecessorSuccessor()
@@ -49,25 +57,25 @@ public class PeerNode
         {
             if(i<id)
             {
-                predecessor=i;
+                predecessor=peerMap.get(i);
             }
             else if(i>id)
             {
-                successor=i;
+                successor=peerMap.get(i);
             }
         }
         if(list.size()==1)
         {
-            predecessor=id;
-            successor=id;
+            predecessor=peerMap.get(id);
+            successor=peerMap.get(id);
         }
-        if(predecessor==-1)
+        if(predecessor==ipAddr)
         {
-            predecessor=list.last();
+            predecessor=peerMap.get(list.last());
         }
-        if(successor==-1)
+        if(successor==ipAddr)
         {
-            successor=list.first();
+            successor=peerMap.get(list.first());
         }
     }
     public int getMin(int val)
@@ -112,7 +120,7 @@ public class PeerNode
         System.out.println("Suuceesor:"+successor);
         for (int i=0;i<fingerDetails.length;i++)
         {
-            System.out.println(fingerDetails[i].getId()+"::"+fingerDetails[i].getNodeVal());
+            System.out.println(fingerDetails[i].getId()+"::"+fingerDetails[i].getNodeVal()+"::"+fingerDetails[i].getIpAddr());
         }
         System.out.println("---------------------------------");
     }
@@ -155,11 +163,23 @@ public class PeerNode
         return id;
     }
 
-    public int getPredecessor() {
+    public String getPredecessor() {
         return predecessor;
     }
 
-    public int getSuccessor() {
+    public String getSuccessor() {
         return successor;
+    }
+
+    public HashMap<Integer, String> getPeerMap() {
+        return peerMap;
+    }
+
+    public void setPeerMap(HashMap<Integer, String> peerMap) {
+        this.peerMap = peerMap;
+    }
+
+    public String getIpAddr() {
+        return ipAddr;
     }
 }

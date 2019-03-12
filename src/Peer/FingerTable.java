@@ -1,4 +1,4 @@
-package main;
+package Peer;
 
 import Util.Constant;
 import Util.Util;
@@ -6,12 +6,14 @@ import Util.Util;
 public class FingerTable
 {
     private int id;
+    private String ipAddr;
     private int nodeVal;
 
-    public FingerTable(int id,int val) {
+    public FingerTable(int id,int val,String ip) {
 
         this.id=id;
         this.nodeVal=val;
+        this.ipAddr=ip;
     }
 
     public int getId() {
@@ -22,11 +24,8 @@ public class FingerTable
         return nodeVal;
     }
 
-    @Override
-    public String toString() {
-        return "FingerTable{" +
-                "id=" + id +
-                ", nodeVal=" + nodeVal +
-                '}';
+    public String getIpAddr() {
+        return ipAddr;
     }
+
 }

@@ -1,7 +1,8 @@
-package main;
+package main.NotNeeded;
 
 import Util.Constant;
 import Util.Util;
+import Peer.PeerNode;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class PeerLookUp1
                     try {
                         Object object = objectInput.readObject();
                         peerList.addAll((SortedSet<Integer>) object);
-                        this.nodeDetails = new PeerNode(id, peerList);
+                       // this.nodeDetails = new PeerNode(id, peerList);
                      //   this.nodeDetails.setList(peerList);
 
                     } catch (ClassNotFoundException e) {

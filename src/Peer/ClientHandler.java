@@ -1,4 +1,4 @@
-package main;
+package Peer;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
