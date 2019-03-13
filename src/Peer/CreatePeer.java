@@ -7,8 +7,7 @@ import Util.Util;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Arrays;import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Arrays;
 
 public class CreatePeer {
 
@@ -17,8 +16,7 @@ public class CreatePeer {
     static int id;
     static String centralServerIP;
     static String nodeIP;
-    PeerLookUp p;
-    SortedSet<Integer> list=new TreeSet<>();
+    static boolean isFirstNode;
 
 
     public static void main(String args[])
@@ -30,7 +28,8 @@ public class CreatePeer {
             centralServerIP="192.168.56.1";
         System.out.println(centralServerIP);
         createPeer.startPeerSocket();
-        PeerDetails newPeer = new PeerDetails(id,centralServerIP,nodeIP);
+
+        PeerDetails newPeer = new PeerDetails(id,centralServerIP,nodeIP,isFirstNode);
         newPeer.start();
 
     }
@@ -40,21 +39,27 @@ public class CreatePeer {
         try {
             System.out.println("Create Peer run listening");
             Socket socket = new Socket(centralServerIP, Constant.SERVER_PORT);
+            byte[] sendByte =new byte[Constant.messageSize];
+
+            //Listen from server
             DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
-
-            nodeIP= socket.getLocalAddress().getHostAddress();
+            nodeIP = socket.getLocalAddress().getHostAddress();
             dataInputStream.read(recvByte, 0, recvByte.length);
-
             String message = new String(Arrays.copyOfRange(recvByte, 0, Constant.messageSize)).trim();
             String messageArray[] = message.split(":");
-            if(Integer.parseInt(messageArray[0])==Constant.n-1)
+            System.out.println("Message from server is:" + message);
+
+            if (Integer.parseInt(messageArray[0]) == Constant.n - 1)
+            {
                 System.out.println("Max peers already present on the ring");
-            else {
-                this.id=Integer.parseInt(messageArray[1]);
-                DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-                byte[] sendByte = Util.makeMessage("new node:" + nodeIP);
-                dataOutputStream.write(sendByte);
-                dataOutputStream.flush();
+                System.out.println("Node not connected");
+                System.exit(1);
+            }
+            else
+            {
+                id=Integer.parseInt(messageArray[1]);
+                isFirstNode=Boolean.valueOf(messageArray[2]);
+
             }
 
             socket.close();

@@ -1,14 +1,10 @@
 package LookUp;
 
-import Peer.Key;
 import Util.Constant;
-
-
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -17,9 +13,9 @@ public class PeerLookUp extends Thread
 
     private static ServerSocket serverLookUpSocket;
     private Socket socket;
-    SortedSet<Integer> list1=new TreeSet<>();
-    HashMap<Integer,String> listMap1=new HashMap<>();
-    HashSet<Key> peerKeyList=new HashSet<Key>();
+    SortedSet<Integer> list=new TreeSet<>();
+    HashMap<Integer,String> peerMap=new HashMap<>();
+    String entryIp;
 
     public static void main(String args[])
     {
@@ -37,6 +33,7 @@ public class PeerLookUp extends Thread
     }
 
     public void run() {
+        PeerLookUp p=new PeerLookUp();
 
         System.out.println("In peer look up server run");
         try {
@@ -46,12 +43,20 @@ public class PeerLookUp extends Thread
                 System.out.println("IP of my system is := "+IP.getHostAddress());
 
                 socket = serverLookUpSocket.accept();
-                new LookUpHandler(socket,list1,listMap1,peerKeyList).start();
+                new LookUpHandler(socket,list,peerMap,p).start();
             }
 
         }
         catch( Exception e ) {
             System.out.println("Exception in Create Server");
         }
+    }
+
+    public String getEntryIp() {
+        return entryIp;
+    }
+
+    public void setEntryIp(String entryIp) {
+        this.entryIp = entryIp;
     }
 }

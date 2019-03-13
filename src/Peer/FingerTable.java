@@ -1,9 +1,8 @@
 package Peer;
 
-import Util.Constant;
-import Util.Util;
+import java.io.Serializable;
 
-public class FingerTable
+public class FingerTable implements Serializable
 {
     private int id;
     private String ipAddr;

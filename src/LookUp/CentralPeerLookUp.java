@@ -33,7 +33,6 @@ public class CentralPeerLookUp extends Thread
             System.out.println("Central Peer lookup running");
             Socket lookUpSocket = new Socket(this.serverIp, Constant.LOOKUP_PORT);
             list1=s.getList();
-            peerKeyList=s.getKeyList();
             sendData(lookUpSocket);
 
             DataOutputStream dataOutputStream = new DataOutputStream(lookUpSocket.getOutputStream());

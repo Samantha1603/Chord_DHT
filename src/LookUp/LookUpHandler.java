@@ -1,65 +1,73 @@
 package LookUp;
 
-import CentralNode.CreateServer;
-import Peer.Key;
-import Peer.PeerNode;
+import Peer.Node;
 import Util.Constant;
+import Util.Util;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 public class LookUpHandler extends Thread
 {
     Socket socket;
-    SortedSet<Integer> peerList1;
-    PeerNode nodeDetails;
-    HashMap<Integer,String> listMap1;
-    HashSet<Key> peerKeyList;
+    HashMap<Integer,String> peerMap;
+    SortedSet<Integer> peerList;
+    String ip;
+    PeerLookUp p;
     int id;
-    // constructor
-    public LookUpHandler(Socket socket, SortedSet<Integer> list, HashMap<Integer,String> map,HashSet<Key> keyList) {
-        this.socket = socket;
-        this.peerList1=list;
-        this.listMap1=map;
-        this.peerKeyList=keyList;
 
+    // constructor
+    public LookUpHandler(Socket socket, SortedSet<Integer> list, HashMap<Integer,String> map,PeerLookUp lookUp) {
+        this.socket = socket;
+        this.peerList=list;
+        this.peerMap=map;
+        this.p=lookUp;
     }
+
     // thread starts
     public void run() {
         System.out.println();
-        System.out.println("ServerHandler running");
+        System.out.println("LookUpHandler running");
         try {
-            CreateServer s=new CreateServer();
-
-
             byte[] sendByte = new byte[Constant.messageSize];
-             DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
-             dataInputStream.read(sendByte, 0, Constant.messageSize);
-             String message = new String(Arrays.copyOfRange(sendByte, 0, Constant.messageSize)).trim();
-             System.out.println("message at server is:" + message);
 
-             String[] messageArray = message.split(":");
+            DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+            dataInputStream.read(sendByte, 0, Constant.messageSize);
+            String message = new String(Arrays.copyOfRange(sendByte, 0, Constant.messageSize)).trim();
+            System.out.println("message at lookup server is:" + message);
+
+            String[] messageArray = message.split(":");
             if(message.contains("Delete"))
             {
-                this.peerList1.remove(Integer.parseInt(messageArray[1]));
-                this.listMap1.remove(Integer.parseInt(messageArray[1]));
-                //left to do - remove from hashset
+                this.peerList.remove(Integer.parseInt(messageArray[1]));
 
             }
             else
             {
-                this.peerList1.add(Integer.parseInt(messageArray[1]));
-                this.listMap1.put(Integer.parseInt(messageArray[1]),messageArray[2]);
-                //left to do - in hashset as well
-            }
-            System.out.println("Map size at handler="+this.listMap1.size());
-            ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
-            objectOutput.writeObject(this.peerList1);
-            objectOutput.writeObject(this.listMap1);
-            objectOutput.writeObject(this.peerKeyList);
-            objectOutput.flush();
+                this.peerList.add(Integer.parseInt(messageArray[1]));
+                id=Integer.parseInt(messageArray[1]);
+                ip=messageArray[3];
+                peerMap.put(id,ip);
+                if(messageArray[4].equalsIgnoreCase("true"))
+                    this.p.setEntryIp(ip);
+                hash(ip);
+                createFingerTable();
 
+
+            }
+            System.out.println("Map size at handler="+this.peerList.size());
+            Node peerNode=createFingerTable();
+//            DataOutputStream dataOutputStream = new DataOutputStream( socket.getOutputStream() );
+//            sendByte = Util.makeMessage(this.p.getEntryIp());
+//            dataOutputStream.write(sendByte);
+//            dataOutputStream.flush();
+
+            ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
+            objectOutput.writeObject(peerNode);
+            objectOutput.flush();
 
         }
         catch (IOException e) {
@@ -68,9 +76,42 @@ public class LookUpHandler extends Thread
 
     }
 
-    public PeerNode getNodeDetails()
+
+    public int hash(String fileName) {
+        byte[] filePathBytes = fileName.getBytes();
+        Checksum value = new CRC32();
+        value.update(filePathBytes, 0, filePathBytes.length);
+        int hash = (int) value.getValue() % (Constant.n-1);
+        if (hash < 0)
+            hash = hash + (Constant.n-1);
+        return hash;
+    }
+
+    public Node createFingerTable()
     {
-        return this.nodeDetails;
+        int pred=peerList.first();
+        int succ=peerList.last();
+        int startZ=0;
+        int endZ=Constant.n-1;
+        for(Integer i:peerList)
+        {
+            if(i<id)
+                pred=i;
+            else if(i>id)
+            {
+                succ=i;
+                break;
+            }
+        }
+        if(peerList.size()>1)
+        {
+            startZ=(pred+1)%(Constant.n-1);
+            endZ=id;
+        }
+        Node p=new Node(id,ip,peerMap.get(succ),peerMap.get(pred),peerList,peerMap,startZ,endZ);
+
+        return p;
+
     }
 
 }

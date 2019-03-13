@@ -1,8 +1,8 @@
 package Peer;
 
-import FileManager.PeerFileManager;
 import Util.*;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -11,24 +11,17 @@ import java.util.*;
 
 public class PeerDetails extends Thread
 {
-    PeerNode nodeDetails;
     int id;
     String serverIPAddr;
     String clientIPAddr;
-    SortedSet<Integer> peerList=new TreeSet<>();
-    HashMap<Integer,String> peerMap=new HashMap<>();
-    PeerFileManager fileManager=new PeerFileManager();
+    boolean isFirstNode;
 
-
-    PeerDetails(int randomNumber,String serverIp,String nodeIp){
+    PeerDetails(int randomNumber,String serverIp,String nodeIp, boolean flag){
         id=randomNumber;
         serverIPAddr=serverIp;
         clientIPAddr=nodeIp;
+        isFirstNode=flag;
         connectToLookUp("");
-        nodeDetails=new PeerNode(id,peerList,peerMap,serverIPAddr);
-        fileManager.replicateFilesFromSuccessor(nodeDetails);
-//        FileUploadListener uploadListener=new FileUploadListener();
-//        uploadListener.start();
     }
 
     public void run()
@@ -44,45 +37,23 @@ public class PeerDetails extends Thread
             switch (switchInt) {
 
                 case 1: //Finger table details
-                    connectToLookUp("");
-                    nodeDetails=new PeerNode(id,peerList,peerMap,serverIPAddr);
-                    nodeDetails.display();
                     break;
 
                 case 2: //Upload Files to Zone
-                    connectToLookUp("");
-                    nodeDetails=new PeerNode(id,peerList,peerMap,serverIPAddr);
-                    System.out.println("Upload Files");
-                    fileManager.upload(nodeDetails,peerList,peerMap);
-
                     break;
 
                 case 3: //Download Files from Zone
-                    connectToLookUp("");
-                    nodeDetails=new PeerNode(id,peerList,peerMap,serverIPAddr);
-                    System.out.println("Download files from zone");
                     break;
 
-                case 4: //Files at the Zone
-                    connectToLookUp("");
-                    nodeDetails=new PeerNode(id,peerList,peerMap,serverIPAddr);
-                    System.out.println("Files present at the node:");
-                    fileManager.getFileNames(clientIPAddr);
-
+                case 4: //Files at the Zone//
                     break;
 
                 case 5: //Leave Chord Zone
-                    connectToLookUp("");
-                    nodeDetails=new PeerNode(id,peerList,peerMap,serverIPAddr);
-                    fileManager.replicateFiles(nodeDetails);
-                    nodeDetails.remove(id);
-                    connectToLookUp("Delete:"+id);
-                    nodeDetails=new PeerNode(id,peerList,peerMap,serverIPAddr);
-                    isNodeRunning=false;
                     break;
 
                 default:
                     System.out.println("Enter the correct option");
+                    break;
             }
 
         }
@@ -103,31 +74,32 @@ public class PeerDetails extends Thread
     {
         {
             try {
-                //System.out.println("Request IP for Zone: " + zoneNumber + " to IP: " + requestIP);
+                System.out.println("connect to lookup");
                 Socket socket = new Socket(serverIPAddr, Constant.LOOKUP_PORT);
                 byte[] sendData=new byte[Constant.messageSize];
                 DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
                 if(msg.contains("Delete"))
-                    sendData=Util.makeMessage(msg+":"+serverIPAddr);
+                    sendData= Util.makeMessage(msg+":"+serverIPAddr);
                 else
-                    sendData=Util.makeMessage("id:"+this.id+":"+serverIPAddr);
+                    sendData=Util.makeMessage("id:"+this.id+":"+serverIPAddr+":"+clientIPAddr+":"+isFirstNode);
 
                 dataOutputStream.write(sendData);
+
+                dataOutputStream.flush();
+//                DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+//                dataInputStream.read(sendData, 0, Constant.messageSize);
+//                String message = new String(Arrays.copyOfRange(sendData, 0, Constant.messageSize)).trim();
+//                System.out.println("message at Peer Details is:" + message);
+
                 ObjectInputStream objectInput = new ObjectInputStream(socket.getInputStream()); //Error Line!
                 try {
                     Object object = objectInput.readObject();
-                    this.peerList=(SortedSet<Integer>) object;
-                    Object objectMap = objectInput.readObject();
-                    this.peerMap=(HashMap<Integer, String>)objectMap;
-                    System.out.println("PeerMap:");
-                    System.out.println(peerMap.size());
-
+                    Node p=(Node) object;
+                    p.display();
                 } catch (ClassNotFoundException e) {
                     System.out.println("The title list has not come from the server");
                     e.printStackTrace();
                 }
-                dataOutputStream.flush();
-
                 socket.close();
 
             } catch (IOException e) {

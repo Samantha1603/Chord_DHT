@@ -29,28 +29,30 @@ public class ServerHandler extends Thread
             CreateServer s=new CreateServer();
 
             DataOutputStream dataOutputStream = new DataOutputStream( socket.getOutputStream() );
-
             int randomNo=random.nextInt(Constant.n - 2) + 1;
-
-            if(s.listKeySize()>=Constant.n-1)
+            String sendMessage = s.listSize()+":" ;
+            if(s.listSize()>=Constant.n-1)
             {
                 System.out.println("Peer cannot be created");
             }
             else {
+                while (s.contains(randomNo)) {
+                    randomNo = random.nextInt(Constant.n - 2) + 1;
+                }
 
-                byte[] sendByte = Util.makeMessage(s.listKeySize()+":"+randomNo);
-                System.out.println("Chord ip - " + socket.getInetAddress().toString());
-                dataOutputStream.write(sendByte);
-
-                dataOutputStream.flush();
-
-                DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
-
-                dataInputStream.read(sendByte, 0, Constant.messageSize);
-                String message = new String(Arrays.copyOfRange(sendByte, 0, Constant.messageSize)).trim();
-                System.out.println("message at server is:" + message);
-
+                s.add(randomNo);
+                sendMessage += randomNo + ":";
+                if (s.listSize() == 1)
+                    sendMessage += "true";
+                else
+                    sendMessage+="false";
             }
+            byte[] sendByte = Util.makeMessage(sendMessage);
+            System.out.println("Connected Node ip - " + socket.getInetAddress().toString());
+            dataOutputStream.write(sendByte);
+
+            dataOutputStream.flush();
+
         }
         catch (IOException e) {
             e.printStackTrace();
